@@ -1,1 +1,189 @@
 @import "tailwindcss";
+
+@theme {
+  --font-display: "Bebas Neue", "Oswald", "Arial Narrow", sans-serif;
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+
+  --color-chalk: #eef1e9;
+  --color-paper: #f9faf4;
+  --color-mist: #d9dfce;
+  --color-ink: #1a1f1b;
+  --color-smoke: #5c655b;
+  --color-pine: #1f4d38;
+  --color-pine-deep: #14382a;
+  --color-moss: #2e6b4e;
+  --color-lime: #c6f04d;
+  --color-lime-deep: #a9d82e;
+  --color-flame: #f04a1d;
+  --color-flame-deep: #cd3a10;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-chalk);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-lime);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-flame);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------- Textures ---------- */
+.bg-dots-light {
+  background-image: radial-gradient(rgba(26, 31, 27, 0.12) 1.2px, transparent 1.2px);
+  background-size: 20px 20px;
+}
+.bg-dots-dark {
+  background-image: radial-gradient(rgba(249, 250, 244, 0.13) 1.2px, transparent 1.2px);
+  background-size: 22px 22px;
+}
+.bg-diag-dark {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(249, 250, 244, 0.045) 0 2px,
+    transparent 2px 16px
+  );
+}
+.bg-diag-lime {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(26, 31, 27, 0.06) 0 2px,
+    transparent 2px 12px
+  );
+}
+
+/* Hollow display word */
+.text-hollow {
+  color: transparent;
+  -webkit-text-stroke: 2px var(--color-lime);
+}
+.text-hollow-flame {
+  color: transparent;
+  -webkit-text-stroke: 2px var(--color-flame);
+}
+
+/* ---------- Keyframes ---------- */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes shake-x {
+  10%, 90% { transform: translateX(-2px); }
+  20%, 80% { transform: translateX(4px); }
+  30%, 50%, 70% { transform: translateX(-6px); }
+  40%, 60% { transform: translateX(6px); }
+}
+@keyframes marquee-x {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes float-y {
+  0%, 100% {
+    transform: translateY(0) rotate(var(--fl-rot, 0deg));
+  }
+  50% {
+    transform: translateY(-12px) rotate(var(--fl-rot, 0deg));
+  }
+}
+@keyframes draw-stroke {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes blink-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(198, 240, 77, 0.55); }
+  70% { box-shadow: 0 0 0 9px rgba(198, 240, 77, 0); }
+}
+
+/* ---------- Animation helpers ---------- */
+.animate-fade-up {
+  animation: fade-up 0.55s cubic-bezier(0.22, 0.9, 0.3, 1) both;
+}
+.animate-pop {
+  animation: pop-in 0.35s cubic-bezier(0.22, 0.9, 0.3, 1) both;
+}
+.animate-shake {
+  animation: shake-x 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+.animate-marquee {
+  animation: marquee-x 26s linear infinite;
+}
+.animate-spin-slower {
+  animation: spin-slow 18s linear infinite;
+}
+.animate-float {
+  animation: float-y 6s ease-in-out infinite;
+}
+.animate-blink {
+  animation: blink-dot 1.4s ease-in-out infinite;
+}
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-out infinite;
+}
+.draw-circle {
+  stroke-dasharray: 330;
+  stroke-dashoffset: 330;
+  animation: draw-stroke 0.7s ease-out forwards;
+}
+.draw-check {
+  stroke-dasharray: 70;
+  stroke-dashoffset: 70;
+  animation: draw-stroke 0.5s 0.55s ease-out forwards;
+}
+
+/* Hard-offset "chalkboard" shadow used across the app */
+.shadow-chalk {
+  box-shadow: 6px 6px 0 0 var(--color-ink);
+}
+.shadow-chalk-sm {
+  box-shadow: 4px 4px 0 0 var(--color-ink);
+}
+.shadow-chalk-lime {
+  box-shadow: 6px 6px 0 0 var(--color-lime);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-spin-slower,
+  .animate-float {
+    animation: none;
+  }
+}
