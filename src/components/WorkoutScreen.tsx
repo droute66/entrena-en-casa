@@ -1,345 +1,635 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import confetti from "canvas-confetti";
-import { getWorkout, type Workout } from "../data/workouts";
+import type { Workout } from "../data/workouts";
 import { Quiz } from "./Quiz";
 import {
   IconArrowLeft,
   IconCheck,
-  IconFlame,
+  IconDumbbell,
+  IconPlay,
+  IconRepeat,
   IconTarget,
   IconTimer,
   IconTrophy,
-  IconUnlock,
 } from "./Icons";
-
-const CONFETTI_COLORS = ["#c6f04d", "#f04a1d", "#1f4d38", "#f9faf4", "#2e6b4e"];
-
-function celebrate() {
-  confetti({
-    particleCount: 130,
-    spread: 80,
-    origin: { y: 0.6 },
-    colors: CONFETTI_COLORS,
-    disableForReducedMotion: true,
-  });
-  window.setTimeout(
-    () =>
-      confetti({
-        particleCount: 70,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0, y: 0.65 },
-        colors: CONFETTI_COLORS,
-        disableForReducedMotion: true,
-      }),
-    250
-  );
-  window.setTimeout(
-    () =>
-      confetti({
-        particleCount: 70,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1, y: 0.65 },
-        colors: CONFETTI_COLORS,
-        disableForReducedMotion: true,
-      }),
-    450
-  );
-}
 
 interface WorkoutScreenProps {
   workout: Workout;
+  week: number;
   isCompleted: boolean;
-  completedDays: number[];
+  completedSessions?: number[];
   progressCount: number;
   onBack: () => void;
-  onComplete: (day: number) => void;
+  onComplete: (week: number, day: number) => void;
 }
 
 export function WorkoutScreen({
   workout,
+  week,
   isCompleted,
-  completedDays,
   progressCount,
   onBack,
   onComplete,
 }: WorkoutScreenProps) {
-  const [showOverlay, setShowOverlay] = useState(false);
-  // Recuerda si el día ya estaba completado al entrar (antes de abrir el overlay)
-  const [wasAlreadyCompleted] = useState(isCompleted);
+  const [showVideo, setShowVideo] = useState(true);
+
+  const safeWeek = Math.min(
+    4,
+    Math.max(1, Math.floor(week))
+  ) as 1 | 2 | 3 | 4;
+
+  const weekConfig = useMemo(() => {
+    return workout?.weeks?.[safeWeek] ?? null;
+  }, [workout, safeWeek]);
+
+  const exercises = workout?.exercises ?? [];
+  const quiz = workout?.quiz ?? [];
+
+  const sessionNumber =
+    (safeWeek - 1) * 4 + (workout?.id ?? 1);
 
   const handlePassed = () => {
-    onComplete(workout.id);
-    celebrate();
-    setShowOverlay(true);
+    if (!isCompleted) {
+      onComplete(safeWeek, workout.id);
+    }
   };
 
-  const nextId = (workout.id + 1) as number;
-  const nextUnlocked =
-    nextId <= 3 && !completedDays.includes(nextId) && completedDays.includes(workout.id);
-  const isFinalDay = workout.id === 3;
+  const videoUrl = weekConfig?.videoId
+    ? `https://www.youtube-nocookie.com/embed/${weekConfig.videoId}?rel=0&modestbranding=1`
+    : "";
+
+  if (!workout || !weekConfig) {
+    return (
+      <div className="min-h-screen bg-black text-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+          <div className="pt-6">
+            <button
+              type="button"
+              onClick={onBack}
+              className="inline-flex items-center gap-2 text-sm font-bold text-white hover:text-lime transition-colors"
+            >
+              <IconArrowLeft className="w-5 h-5" />
+              Volver al programa
+            </button>
+          </div>
+
+          <div className="mt-10 bg-black border-2 border-flame rounded-xl p-6">
+            <h1 className="font-display text-4xl text-white">
+              ENTRENAMIENTO NO DISPONIBLE
+            </h1>
+
+            <p className="text-sm text-white/80 mt-2">
+              No se pudo cargar la configuración de esta sesión.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-      {/* Fila superior */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mt-6">
-        <button
-          type="button"
-          onClick={onBack}
-          className="inline-flex items-center gap-2 border-2 border-ink rounded-lg bg-paper px-4 py-2 font-bold text-sm shadow-chalk-sm transition-all hover:bg-lime hover:-translate-y-0.5 active:translate-y-0 active:shadow-none"
-        >
-          <IconArrowLeft className="w-4 h-4" />
-          Volver al plan
-        </button>
-        <span
-          className={`inline-flex items-center gap-1.5 border-2 border-ink rounded-full px-3.5 py-1 text-[11px] font-bold tracking-[0.14em] ${
-            isCompleted ? "bg-pine text-lime" : "bg-lime text-ink"
-          }`}
-        >
-          {isCompleted ? (
-            <>
-              <IconCheck className="w-3.5 h-3.5" /> DÍA COMPLETADO
-            </>
-          ) : (
-            <>
-              <span className="w-2 h-2 rounded-full bg-ink animate-blink" /> EN CURSO
-            </>
-          )}
-        </span>
-      </div>
+    <div className="min-h-screen bg-black text-white">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
 
-      {/* Cabecera del día */}
-      <motion.header
-        initial={{ opacity: 0, y: 18 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, ease: [0.22, 0.9, 0.3, 1] }}
-        className="mt-8"
-      >
-        <p className="text-xs font-bold tracking-[0.24em] text-flame uppercase">
-          Día {workout.id} · {workout.focus}
-        </p>
-        <h1 className="font-display text-6xl sm:text-7xl lg:text-8xl leading-[0.85] mt-2">
-          {workout.title.toUpperCase()}
-        </h1>
-        <p className="mt-3 text-lg text-smoke max-w-2xl">{workout.tagline}</p>
-        <div className="flex flex-wrap gap-2.5 mt-5">
-          <span className="inline-flex items-center gap-2 border-2 border-ink rounded-full bg-paper px-4 py-1.5 text-sm font-semibold shadow-chalk-sm">
-            <IconTimer className="w-4 h-4 text-pine" /> {workout.duration}
-          </span>
-          <span className="inline-flex items-center gap-2 border-2 border-ink rounded-full bg-paper px-4 py-1.5 text-sm font-semibold shadow-chalk-sm">
-            <IconFlame className="w-4 h-4 text-flame" /> {workout.calories}
-          </span>
-          <span className="inline-flex items-center gap-2 border-2 border-ink rounded-full bg-paper px-4 py-1.5 text-sm font-semibold shadow-chalk-sm">
-            <IconTarget className="w-4 h-4 text-pine" /> Nivel {workout.level.toLowerCase()}
-          </span>
-          {workout.muscles.map((m) => (
-            <span
-              key={m}
-              className="inline-flex items-center border-2 border-mist rounded-full bg-chalk px-3.5 py-1.5 text-sm font-medium text-smoke"
-            >
-              {m}
-            </span>
-          ))}
-        </div>
-      </motion.header>
+        {/* VOLVER */}
 
-      {/* Video + descripción */}
-      <div className="grid gap-6 mt-10 lg:grid-cols-5">
         <motion.div
-          initial={{ opacity: 0, y: 22 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.08, duration: 0.5, ease: [0.22, 0.9, 0.3, 1] }}
-          className="lg:col-span-3 bg-paper border-2 border-ink rounded-xl shadow-chalk overflow-hidden"
+          initial={{ opacity: 0, x: -12 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="pt-6"
         >
-          <div className="flex items-center justify-between gap-3 bg-ink text-chalk px-4 py-2.5">
-            <span className="flex items-center gap-2 text-xs font-bold tracking-[0.18em]">
-              <span className="w-2.5 h-2.5 rounded-full bg-flame animate-blink" />
-              VIDEO GUÍA · EJEMPLO
-            </span>
-            <span className="text-xs text-chalk/70 truncate">{workout.videoLabel}</span>
-          </div>
-          <div className="relative aspect-video bg-ink">
-            <iframe
-              className="absolute inset-0 h-full w-full"
-              src={`https://www.youtube-nocookie.com/embed/${workout.videoId}?rel=0`}
-              title={`Video de ejemplo: ${workout.videoLabel}`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-              referrerPolicy="strict-origin-when-cross-origin"
-            />
-          </div>
-          <p className="px-4 py-3 text-xs text-smoke border-t-2 border-mist">
-            Reproductor de YouTube de ejemplo — sustitúyelo por la rutina grabada que
-            prefieras seguir.
-          </p>
-        </motion.div>
-
-        <motion.aside
-          initial={{ opacity: 0, y: 22 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.16, duration: 0.5, ease: [0.22, 0.9, 0.3, 1] }}
-          className="lg:col-span-2 relative overflow-hidden bg-pine-deep text-chalk border-2 border-ink rounded-xl shadow-chalk p-6 sm:p-7"
-        >
-          <div className="absolute inset-0 bg-diag-dark" aria-hidden />
-          <div className="relative">
-            <h2 className="font-display text-4xl text-lime leading-none">
-              ¿POR QUÉ ESTE DÍA?
-            </h2>
-            <p className="mt-4 text-[15px] leading-relaxed text-chalk/85">
-              {workout.description}
-            </p>
-            <div className="flex flex-wrap gap-1.5 mt-5">
-              {workout.muscles.map((m) => (
-                <span
-                  key={m}
-                  className="text-[11px] font-bold uppercase tracking-wide border border-lime/50 text-lime rounded-full px-2.5 py-1"
-                >
-                  {m}
-                </span>
-              ))}
-            </div>
-          </div>
-        </motion.aside>
-      </div>
-
-      {/* Circuito */}
-      <motion.section
-        aria-label="Circuito de ejercicios"
-        initial={{ opacity: 0, y: 22 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.24, duration: 0.5, ease: [0.22, 0.9, 0.3, 1] }}
-        className="bg-paper border-2 border-ink rounded-xl shadow-chalk p-6 sm:p-7 mt-6"
-      >
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="font-display text-4xl leading-none">EL CIRCUITO</h2>
-          <span className="text-xs font-bold tracking-widest border-2 border-ink rounded-full bg-lime px-3.5 py-1.5">
-            3 RONDAS · 45 S DE DESCANSO
-          </span>
-        </div>
-        <ol className="grid gap-2.5 sm:grid-cols-2 mt-5">
-          {workout.exercises.map((ex, i) => (
-            <li
-              key={ex.name}
-              className="flex items-center gap-3 border-2 border-mist rounded-lg px-3.5 py-2.5 bg-chalk transition-colors hover:border-ink"
-            >
-              <span className="shrink-0 inline-flex items-center justify-center w-8 h-8 bg-lime border-2 border-ink rounded-md font-display text-lg">
-                {i + 1}
-              </span>
-              <span className="font-semibold">{ex.name}</span>
-              <span className="ml-auto text-sm font-bold text-smoke whitespace-nowrap">
-                {ex.reps}
-              </span>
-            </li>
-          ))}
-        </ol>
-      </motion.section>
-
-      {/* Quiz */}
-      <motion.div
-        initial={{ opacity: 0, y: 22 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.32, duration: 0.5, ease: [0.22, 0.9, 0.3, 1] }}
-        className="mt-6"
-      >
-        <Quiz
-          workout={workout}
-          alreadyCompleted={isCompleted}
-          onPassed={handlePassed}
-        />
-      </motion.div>
-
-      {/* Overlay de éxito */}
-      {showOverlay && (
-        <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.25 }}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Entrenamiento completado"
-        >
-          <div
-            className="absolute inset-0 bg-ink/85"
-            onClick={() => setShowOverlay(false)}
-          />
-          <motion.div
-            initial={{ scale: 0.85, y: 24, opacity: 0 }}
-            animate={{ scale: 1, y: 0, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 320, damping: 24, delay: 0.05 }}
-            className="relative bg-chalk border-2 border-ink rounded-xl shadow-chalk-lime max-w-md w-full p-8 text-center animate-pop"
+          <button
+            type="button"
+            onClick={onBack}
+            className="inline-flex items-center gap-2 text-sm font-bold text-white hover:text-lime transition-colors"
           >
-            <svg viewBox="0 0 120 120" className="w-28 h-28 mx-auto" aria-hidden>
-              <circle
-                cx="60"
-                cy="60"
-                r="52"
-                fill="rgba(198,240,77,0.4)"
-                stroke="#2e6b4e"
-                strokeWidth="6"
-                className="draw-circle"
-              />
-              <path
-                d="M38 62 l16 16 l30 -34"
-                fill="none"
-                stroke="#1f4d38"
-                strokeWidth="9"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="draw-check"
-              />
-            </svg>
-
-            <p className="text-xs font-bold tracking-[0.24em] text-flame uppercase mt-4">
-              Día {workout.id} · {workout.focus}
-            </p>
-            <h2 className="font-display text-6xl leading-[0.9] mt-1">
-              ¡COMPLETADO!
-            </h2>
-            <p className="mt-3 text-smoke text-sm leading-relaxed">
-              Circuito hecho y quiz superado{wasAlreadyCompleted ? " otra vez" : ""}. Tu
-              progreso quedó guardado en este dispositivo.
-            </p>
-
-            <div className="mt-4 flex flex-col items-center gap-2.5">
-              {nextUnlocked && (
-                <span className="inline-flex items-center gap-2 bg-lime border-2 border-ink rounded-lg px-4 py-2 font-bold text-sm animate-fade-up">
-                  <IconUnlock className="w-5 h-5" />
-                  Día {nextId} desbloqueado: {getWorkout(nextId).title}
-                </span>
-              )}
-              {isFinalDay && (
-                <span className="inline-flex items-center gap-2 bg-pine text-lime border-2 border-ink rounded-lg px-4 py-2 font-bold text-sm animate-fade-up">
-                  <IconTrophy className="w-5 h-5" />
-                  Rutina semanal completa: 3 de 3
-                </span>
-              )}
-              <p className="text-xs font-bold tracking-widest text-smoke">
-                PROGRESO: {progressCount}/3 DÍAS
-              </p>
-            </div>
-
-            <div className="flex flex-wrap justify-center gap-3 mt-6">
-              <button
-                type="button"
-                onClick={onBack}
-                className="inline-flex items-center gap-2 bg-flame text-chalk border-2 border-ink rounded-lg px-6 py-3 font-bold shadow-chalk-sm transition-all hover:bg-flame-deep hover:-translate-y-0.5 active:translate-y-0 active:shadow-none"
-              >
-                Volver al plan
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowOverlay(false)}
-                className="inline-flex items-center gap-2 border-2 border-ink rounded-lg bg-paper px-6 py-3 font-bold transition-colors hover:bg-lime"
-              >
-                Revisar el día
-              </button>
-            </div>
-          </motion.div>
+            <IconArrowLeft className="w-5 h-5" />
+            Volver al programa
+          </button>
         </motion.div>
-      )}
+
+        {/* CABECERA */}
+
+        <motion.section
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45 }}
+          className="mt-7"
+        >
+          <div className="flex flex-wrap items-start justify-between gap-5">
+
+            <div className="min-w-0">
+
+              <div className="flex flex-wrap items-center gap-2">
+
+                <span className="inline-flex items-center gap-1.5 bg-lime text-black border-2 border-black rounded-full px-3 py-1 text-xs font-extrabold">
+                  <IconTarget className="w-3.5 h-3.5" />
+                  SEMANA {safeWeek}
+                </span>
+
+                <span className="inline-flex items-center gap-1.5 bg-white text-black border-2 border-black rounded-full px-3 py-1 text-xs font-extrabold">
+                  DÍA {workout.id}
+                </span>
+
+                {isCompleted && (
+                  <span className="inline-flex items-center gap-1.5 bg-black text-white border-2 border-lime rounded-full px-3 py-1 text-xs font-bold">
+                    <IconCheck className="w-3.5 h-3.5 text-lime" />
+                    COMPLETADO
+                  </span>
+                )}
+              </div>
+
+              <p className="text-xs font-bold tracking-[0.24em] text-flame uppercase mt-5">
+                Sesión {sessionNumber} de 16
+              </p>
+
+              <h1 className="font-display text-6xl sm:text-7xl lg:text-8xl leading-[0.84] mt-2 text-white">
+                {workout.title}
+              </h1>
+
+              <p className="mt-5 text-lg text-white/80 max-w-3xl leading-relaxed">
+                {workout.tagline}
+              </p>
+
+            </div>
+
+            {/* PROGRESO */}
+
+            <div className="shrink-0 bg-black text-white border-2 border-lime rounded-xl shadow-chalk p-5 min-w-[190px]">
+
+              <div className="flex items-center gap-2">
+                <IconDumbbell className="w-5 h-5 text-lime" />
+
+                <span className="text-xs font-bold tracking-[0.18em] text-lime">
+                  PROGRESO
+                </span>
+              </div>
+
+              <p className="font-display text-4xl mt-2 text-white">
+                {progressCount}
+                <span className="text-xl text-white">
+                  /16
+                </span>
+              </p>
+
+              <div className="h-2 bg-black border border-white/30 rounded-full overflow-hidden mt-3">
+                <div
+                  className="h-full bg-lime transition-all duration-500"
+                  style={{
+                    width: `${Math.min(
+                      100,
+                      Math.max(
+                        0,
+                        (progressCount / 16) * 100
+                      )
+                    )}%`,
+                  }}
+                />
+              </div>
+
+              <p className="text-xs text-white mt-2">
+                {progressCount} de 16 sesiones completadas
+              </p>
+
+            </div>
+          </div>
+        </motion.section>
+
+        {/* INFORMACIÓN RÁPIDA */}
+
+        <motion.section
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            delay: 0.08,
+            duration: 0.45,
+          }}
+          className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8"
+        >
+
+          <div className="bg-white text-black border-2 border-black rounded-lg p-4">
+            <p className="text-[10px] font-bold tracking-[0.18em] text-black/60 uppercase">
+              Enfoque
+            </p>
+
+            <p className="font-bold text-sm mt-1 text-black">
+              {workout.focus}
+            </p>
+          </div>
+
+          <div className="bg-white text-black border-2 border-black rounded-lg p-4">
+            <p className="text-[10px] font-bold tracking-[0.18em] text-black/60 uppercase">
+              Nivel
+            </p>
+
+            <p className="font-bold text-sm mt-1 text-black">
+              {workout.level}
+            </p>
+          </div>
+
+          <div className="bg-white text-black border-2 border-black rounded-lg p-4">
+            <p className="text-[10px] font-bold tracking-[0.18em] text-black/60 uppercase">
+              Vueltas
+            </p>
+
+            <p className="font-bold text-sm mt-1 text-black">
+              {weekConfig.rounds} vueltas
+            </p>
+          </div>
+
+          <div className="bg-white text-black border-2 border-black rounded-lg p-4">
+            <p className="text-[10px] font-bold tracking-[0.18em] text-black/60 uppercase">
+              Descanso
+            </p>
+
+            <p className="font-bold text-sm mt-1 text-black">
+              {weekConfig.rest}
+            </p>
+          </div>
+
+        </motion.section>
+
+        {/* VIDEO */}
+
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            delay: 0.14,
+            duration: 0.45,
+          }}
+          className="mt-8"
+        >
+
+          <div className="bg-black border-2 border-white/20 rounded-xl shadow-chalk overflow-hidden">
+
+            <div className="bg-black border-b-2 border-lime/30 px-5 py-4">
+
+              <div className="flex flex-wrap items-center justify-between gap-3">
+
+                <div className="flex items-center gap-3 min-w-0">
+
+                  <span className="shrink-0 w-10 h-10 grid place-items-center bg-lime text-black border-2 border-black rounded-lg">
+                    <IconPlay className="w-5 h-5" />
+                  </span>
+
+                  <div className="min-w-0">
+
+                    <p className="text-xs font-bold tracking-[0.18em] text-lime uppercase">
+                      Video del entrenamiento
+                    </p>
+
+                    <h2 className="font-display text-2xl text-white leading-none mt-1 truncate">
+                      {weekConfig.videoLabel}
+                    </h2>
+
+                  </div>
+                </div>
+
+                {showVideo && videoUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setShowVideo(false)}
+                    className="shrink-0 inline-flex items-center gap-2 bg-white text-black border-2 border-black rounded-lg px-4 py-2 text-sm font-extrabold hover:bg-lime transition-all"
+                  >
+                    Cerrar video
+                  </button>
+                )}
+
+              </div>
+            </div>
+
+            {showVideo && videoUrl ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="relative aspect-video bg-black"
+              >
+                <iframe
+                  className="absolute inset-0 w-full h-full"
+                  src={videoUrl}
+                  title={`${workout.title} - Semana ${safeWeek}`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  referrerPolicy="strict-origin-when-cross-origin"
+                />
+              </motion.div>
+            ) : (
+              <div className="bg-black px-5 py-8 text-center">
+
+                <IconPlay className="w-10 h-10 mx-auto text-lime" />
+
+                <p className="font-bold text-white mt-3">
+                  Video oculto
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() => setShowVideo(true)}
+                  className="mt-4 inline-flex items-center gap-2 bg-lime text-black border-2 border-black rounded-lg px-5 py-2.5 font-extrabold shadow-chalk-sm hover:bg-white hover:-translate-y-0.5 transition-all"
+                >
+                  <IconPlay className="w-4 h-4" />
+                  Mostrar video
+                </button>
+
+              </div>
+            )}
+
+            <div className="bg-black px-5 py-3 text-xs text-white border-t border-white/20">
+              Video integrado en la aplicación · Semana {safeWeek}
+            </div>
+
+          </div>
+        </motion.section>
+
+        {/* DESCRIPCIÓN */}
+
+        <motion.section
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            delay: 0.2,
+            duration: 0.45,
+          }}
+          className="mt-8"
+        >
+
+          <div className="bg-white text-black border-2 border-black rounded-xl shadow-chalk-sm p-6">
+
+            <div className="flex items-start gap-4">
+
+              <span className="shrink-0 w-11 h-11 grid place-items-center bg-lime text-black border-2 border-black rounded-lg">
+                <IconDumbbell className="w-6 h-6" />
+              </span>
+
+              <div>
+
+                <p className="text-xs font-bold tracking-[0.2em] text-flame uppercase">
+                  Sobre este entrenamiento
+                </p>
+
+                <p className="mt-2 text-sm text-black leading-relaxed max-w-4xl">
+                  {workout.description}
+                </p>
+
+              </div>
+            </div>
+
+          </div>
+        </motion.section>
+
+        {/* EJERCICIOS */}
+
+        <motion.section
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            delay: 0.26,
+            duration: 0.45,
+          }}
+          className="mt-8"
+        >
+
+          <div className="flex flex-wrap items-end justify-between gap-3">
+
+            <div>
+
+              <p className="text-xs font-bold tracking-[0.24em] text-flame uppercase">
+                Plan de trabajo
+              </p>
+
+              <h2 className="font-display text-5xl sm:text-6xl leading-none text-white">
+                EJERCICIOS
+              </h2>
+
+            </div>
+
+            <span className="inline-flex items-center gap-2 bg-lime text-black border-2 border-black rounded-full px-3.5 py-1.5 text-xs font-extrabold">
+              <IconRepeat className="w-4 h-4" />
+              {weekConfig.rounds} VUELTAS
+            </span>
+
+          </div>
+
+          {exercises.length > 0 ? (
+            <div className="grid gap-3 mt-6">
+
+              {exercises.map((exercise, index) => {
+
+                const reps =
+                  exercise?.[
+                    `week${safeWeek}` as keyof typeof exercise
+                  ];
+
+                return (
+                  <motion.div
+                    key={`${exercise.name}-${index}`}
+                    initial={{
+                      opacity: 0,
+                      x: -12,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      x: 0,
+                    }}
+                    transition={{
+                      delay: 0.3 + index * 0.04,
+                      duration: 0.3,
+                    }}
+                    className="bg-white text-black border-2 border-black rounded-lg p-4 sm:p-5 shadow-chalk-sm"
+                  >
+
+                    <div className="flex items-center gap-4">
+
+                      <span className="shrink-0 w-10 h-10 grid place-items-center bg-lime text-black border-2 border-black rounded-lg font-display text-xl">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+
+                      <div className="min-w-0 flex-1">
+
+                        <h3 className="font-bold text-base sm:text-lg leading-tight text-black">
+                          {exercise.name}
+                        </h3>
+
+                        <p className="text-xs text-black/70 mt-1">
+                          {typeof reps === "string"
+                            ? reps
+                            : "Según indicaciones del entrenamiento"}
+                        </p>
+
+                      </div>
+
+                      <div className="shrink-0 hidden sm:flex items-center gap-1.5 text-xs font-bold text-black/70">
+
+                        <IconRepeat className="w-4 h-4 text-black" />
+
+                        {weekConfig.rounds}x
+
+                      </div>
+
+                    </div>
+
+                  </motion.div>
+                );
+              })}
+
+            </div>
+          ) : (
+            <div className="mt-6 bg-white text-black border-2 border-black rounded-xl p-5 text-sm">
+              No hay ejercicios configurados para este entrenamiento.
+            </div>
+          )}
+
+        </motion.section>
+
+        {/* RESUMEN */}
+
+        <motion.section
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            delay: 0.32,
+            duration: 0.45,
+          }}
+          className="mt-8"
+        >
+
+          <div className="bg-black text-white border-2 border-lime rounded-xl shadow-chalk p-6">
+
+            <div className="grid gap-5 sm:grid-cols-3">
+
+              <div>
+                <div className="flex items-center gap-2">
+                  <IconRepeat className="w-5 h-5 text-lime" />
+
+                  <span className="text-xs font-bold tracking-[0.18em] text-lime">
+                    VUELTAS
+                  </span>
+                </div>
+
+                <p className="font-display text-4xl mt-1 text-white">
+                  {weekConfig.rounds}
+                </p>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2">
+                  <IconTimer className="w-5 h-5 text-lime" />
+
+                  <span className="text-xs font-bold tracking-[0.18em] text-lime">
+                    DESCANSO
+                  </span>
+                </div>
+
+                <p className="font-display text-4xl mt-1 text-white">
+                  {weekConfig.rest}
+                </p>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2">
+                  <IconTarget className="w-5 h-5 text-lime" />
+
+                  <span className="text-xs font-bold tracking-[0.18em] text-lime">
+                    EJERCICIOS
+                  </span>
+                </div>
+
+                <p className="font-display text-4xl mt-1 text-white">
+                  {exercises.length}
+                </p>
+              </div>
+
+            </div>
+          </div>
+        </motion.section>
+
+        {/* QUIZ */}
+
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            delay: 0.38,
+            duration: 0.45,
+          }}
+          className="mt-10"
+        >
+
+          {quiz.length > 0 ? (
+            <Quiz
+              workout={workout}
+              alreadyCompleted={isCompleted}
+              onPassed={handlePassed}
+            />
+          ) : (
+            <div className="bg-black border-2 border-flame rounded-xl p-6">
+
+              <div className="flex items-start gap-4">
+
+                <IconTrophy className="w-8 h-8 shrink-0 text-flame" />
+
+                <div>
+
+                  <h2 className="font-display text-3xl leading-none text-white">
+                    QUIZ NO CONFIGURADO
+                  </h2>
+
+                  <p className="text-sm text-white/80 mt-2">
+                    Este entrenamiento todavía no tiene preguntas cargadas.
+                  </p>
+
+                </div>
+
+              </div>
+
+            </div>
+          )}
+
+        </motion.section>
+
+        {/* SESIÓN COMPLETADA */}
+
+        {isCompleted && (
+          <motion.section
+            initial={{
+              opacity: 0,
+              scale: 0.97,
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+            }}
+            className="mt-8 bg-black text-white border-2 border-lime rounded-xl shadow-chalk-lime p-6 text-center"
+          >
+
+            <IconTrophy className="w-10 h-10 mx-auto text-lime" />
+
+            <p className="text-xs font-bold tracking-[0.2em] text-lime uppercase mt-3">
+              Sesión completada
+            </p>
+
+            <h2 className="font-display text-4xl leading-none text-white">
+              DÍA {workout.id} COMPLETADO
+            </h2>
+
+            <p className="text-sm text-white/80 mt-2">
+              Tu progreso quedó guardado. Puedes volver al programa para continuar con la siguiente sesión.
+            </p>
+
+            <button
+              type="button"
+              onClick={onBack}
+              className="mt-5 inline-flex items-center gap-2 bg-lime text-black border-2 border-black rounded-lg px-6 py-3 font-extrabold shadow-chalk-sm hover:bg-white hover:-translate-y-0.5 transition-all"
+            >
+              <IconArrowLeft className="w-5 h-5" />
+              Volver al programa
+            </button>
+
+          </motion.section>
+        )}
+
+      </div>
     </div>
   );
 }

@@ -4,186 +4,524 @@
   --font-display: "Bebas Neue", "Oswald", "Arial Narrow", sans-serif;
   --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
 
-  --color-chalk: #eef1e9;
-  --color-paper: #f9faf4;
-  --color-mist: #d9dfce;
-  --color-ink: #1a1f1b;
-  --color-smoke: #5c655b;
-  --color-pine: #1f4d38;
-  --color-pine-deep: #14382a;
-  --color-moss: #2e6b4e;
-  --color-lime: #c6f04d;
-  --color-lime-deep: #a9d82e;
-  --color-flame: #f04a1d;
-  --color-flame-deep: #cd3a10;
+  /* ---------- PALETA FITNESS ---------- */
+  --color-chalk: #101512;
+  --color-paper: #18201b;
+  --color-mist: #29342d;
+  --color-ink: #f4f7ef;
+  --color-smoke: #aab6ad;
+
+  --color-pine: #0f7a4f;
+  --color-pine-deep: #082f21;
+  --color-moss: #19a866;
+
+  --color-lime: #b8ff35;
+  --color-lime-deep: #8fdc19;
+
+  --color-flame: #ff542f;
+  --color-flame-deep: #e33818;
 }
+
+/* =========================================================
+   BASE
+========================================================= */
 
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  background-color: var(--color-chalk);
+  background:
+    radial-gradient(
+      circle at 15% 10%,
+      rgba(184, 255, 53, 0.07),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 85% 20%,
+      rgba(255, 84, 47, 0.06),
+      transparent 25%
+    ),
+    var(--color-chalk);
+
   color: var(--color-ink);
   font-family: var(--font-sans);
+
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+
+  min-height: 100vh;
 }
 
 ::selection {
   background: var(--color-lime);
-  color: var(--color-ink);
+  color: #081009;
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-flame);
-  outline-offset: 2px;
-  border-radius: 4px;
+  outline: 3px solid var(--color-lime);
+  outline-offset: 3px;
+  border-radius: 5px;
 }
 
-/* ---------- Textures ---------- */
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0e0c;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-moss);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-lime);
+}
+
+/* =========================================================
+   TEXTURES
+========================================================= */
+
 .bg-dots-light {
-  background-image: radial-gradient(rgba(26, 31, 27, 0.12) 1.2px, transparent 1.2px);
+  background-image: radial-gradient(
+    rgba(184, 255, 53, 0.13) 1.2px,
+    transparent 1.2px
+  );
   background-size: 20px 20px;
 }
+
 .bg-dots-dark {
-  background-image: radial-gradient(rgba(249, 250, 244, 0.13) 1.2px, transparent 1.2px);
+  background-image: radial-gradient(
+    rgba(255, 255, 255, 0.07) 1.2px,
+    transparent 1.2px
+  );
   background-size: 22px 22px;
 }
+
 .bg-diag-dark {
   background-image: repeating-linear-gradient(
     -45deg,
-    rgba(249, 250, 244, 0.045) 0 2px,
-    transparent 2px 16px
+    rgba(184, 255, 53, 0.045) 0 2px,
+    transparent 2px 15px
   );
 }
+
 .bg-diag-lime {
   background-image: repeating-linear-gradient(
     -45deg,
-    rgba(26, 31, 27, 0.06) 0 2px,
+    rgba(8, 15, 10, 0.12) 0 2px,
     transparent 2px 12px
   );
 }
 
-/* Hollow display word */
+/* =========================================================
+   DISPLAY TYPOGRAPHY
+========================================================= */
+
 .text-hollow {
   color: transparent;
   -webkit-text-stroke: 2px var(--color-lime);
 }
+
 .text-hollow-flame {
   color: transparent;
   -webkit-text-stroke: 2px var(--color-flame);
 }
 
-/* ---------- Keyframes ---------- */
+/* =========================================================
+   EXTRA FITNESS TEXT EFFECTS
+========================================================= */
+
+.text-neon {
+  text-shadow:
+    0 0 8px rgba(184, 255, 53, 0.35),
+    0 0 22px rgba(184, 255, 53, 0.15);
+}
+
+.text-fire {
+  text-shadow:
+    0 0 8px rgba(255, 84, 47, 0.35),
+    0 0 22px rgba(255, 84, 47, 0.15);
+}
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.fitness-card {
+  background: linear-gradient(
+    145deg,
+    #1b251f,
+    #111813
+  );
+
+  border: 2px solid rgba(184, 255, 53, 0.18);
+
+  box-shadow:
+    5px 5px 0 #070a08,
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.fitness-card:hover {
+  transform: translateY(-3px);
+
+  border-color: rgba(184, 255, 53, 0.55);
+
+  box-shadow:
+    7px 7px 0 #070a08,
+    0 0 25px rgba(184, 255, 53, 0.07);
+}
+
+/* =========================================================
+   BUTTON EFFECTS
+========================================================= */
+
+.fitness-button {
+  background: var(--color-lime);
+  color: #091008;
+
+  border: 2px solid #080d09;
+
+  font-weight: 800;
+
+  box-shadow: 4px 4px 0 #050805;
+
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    background-color 150ms ease;
+}
+
+.fitness-button:hover {
+  background: #c8ff68;
+  transform: translate(-1px, -2px);
+  box-shadow: 6px 6px 0 #050805;
+}
+
+.fitness-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #050805;
+}
+
+/* =========================================================
+   FLAME BUTTON
+========================================================= */
+
+.fitness-button-flame {
+  background: var(--color-flame);
+  color: white;
+
+  border: 2px solid #090b09;
+
+  font-weight: 800;
+
+  box-shadow: 4px 4px 0 #050705;
+
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    background-color 150ms ease;
+}
+
+.fitness-button-flame:hover {
+  background: #ff6b4c;
+  transform: translate(-1px, -2px);
+  box-shadow: 6px 6px 0 #050705;
+}
+
+.fitness-button-flame:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #050705;
+}
+
+/* =========================================================
+   PROGRESS
+========================================================= */
+
+.fitness-progress {
+  height: 12px;
+
+  background: #070b08;
+
+  border: 2px solid rgba(184, 255, 53, 0.35);
+
+  border-radius: 999px;
+
+  overflow: hidden;
+}
+
+.fitness-progress > div {
+  height: 100%;
+
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      rgba(0, 0, 0, 0.08) 0 6px,
+      transparent 6px 12px
+    ),
+    var(--color-lime);
+
+  box-shadow:
+    0 0 12px rgba(184, 255, 53, 0.45);
+
+  transition: width 700ms ease;
+}
+
+/* =========================================================
+   KEYFRAMES
+========================================================= */
+
 @keyframes fade-up {
   from {
     opacity: 0;
     transform: translateY(18px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
+
 @keyframes pop-in {
   from {
     opacity: 0;
     transform: scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
   }
 }
+
 @keyframes shake-x {
-  10%, 90% { transform: translateX(-2px); }
-  20%, 80% { transform: translateX(4px); }
-  30%, 50%, 70% { transform: translateX(-6px); }
-  40%, 60% { transform: translateX(6px); }
+  10%,
+  90% {
+    transform: translateX(-2px);
+  }
+
+  20%,
+  80% {
+    transform: translateX(4px);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translateX(-6px);
+  }
+
+  40%,
+  60% {
+    transform: translateX(6px);
+  }
 }
+
 @keyframes marquee-x {
   to {
     transform: translateX(-50%);
   }
 }
+
 @keyframes spin-slow {
   to {
     transform: rotate(360deg);
   }
 }
+
 @keyframes float-y {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0) rotate(var(--fl-rot, 0deg));
   }
+
   50% {
     transform: translateY(-12px) rotate(var(--fl-rot, 0deg));
   }
 }
+
 @keyframes draw-stroke {
   to {
     stroke-dashoffset: 0;
   }
 }
+
 @keyframes blink-dot {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.25; }
-}
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(198, 240, 77, 0.55); }
-  70% { box-shadow: 0 0 0 9px rgba(198, 240, 77, 0); }
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.25;
+  }
 }
 
-/* ---------- Animation helpers ---------- */
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(184, 255, 53, 0.55);
+  }
+
+  70% {
+    box-shadow:
+      0 0 0 10px rgba(184, 255, 53, 0);
+  }
+}
+
+/* =========================================================
+   ANIMATION HELPERS
+========================================================= */
+
 .animate-fade-up {
-  animation: fade-up 0.55s cubic-bezier(0.22, 0.9, 0.3, 1) both;
+  animation:
+    fade-up 0.55s cubic-bezier(0.22, 0.9, 0.3, 1) both;
 }
+
 .animate-pop {
-  animation: pop-in 0.35s cubic-bezier(0.22, 0.9, 0.3, 1) both;
+  animation:
+    pop-in 0.35s cubic-bezier(0.22, 0.9, 0.3, 1) both;
 }
+
 .animate-shake {
-  animation: shake-x 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  animation:
+    shake-x 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }
+
 .animate-marquee {
-  animation: marquee-x 26s linear infinite;
+  animation:
+    marquee-x 26s linear infinite;
 }
+
 .animate-spin-slower {
-  animation: spin-slow 18s linear infinite;
+  animation:
+    spin-slow 18s linear infinite;
 }
+
 .animate-float {
-  animation: float-y 6s ease-in-out infinite;
+  animation:
+    float-y 6s ease-in-out infinite;
 }
+
 .animate-blink {
-  animation: blink-dot 1.4s ease-in-out infinite;
+  animation:
+    blink-dot 1.4s ease-in-out infinite;
 }
+
 .animate-pulse-glow {
-  animation: pulse-glow 2s ease-out infinite;
+  animation:
+    pulse-glow 2s ease-out infinite;
 }
+
 .draw-circle {
   stroke-dasharray: 330;
   stroke-dashoffset: 330;
-  animation: draw-stroke 0.7s ease-out forwards;
+  animation:
+    draw-stroke 0.7s ease-out forwards;
 }
+
 .draw-check {
   stroke-dasharray: 70;
   stroke-dashoffset: 70;
-  animation: draw-stroke 0.5s 0.55s ease-out forwards;
+  animation:
+    draw-stroke 0.5s 0.55s ease-out forwards;
 }
 
-/* Hard-offset "chalkboard" shadow used across the app */
+/* =========================================================
+   SHADOWS
+========================================================= */
+
 .shadow-chalk {
-  box-shadow: 6px 6px 0 0 var(--color-ink);
+  box-shadow:
+    6px 6px 0 0 #050805;
 }
+
 .shadow-chalk-sm {
-  box-shadow: 4px 4px 0 0 var(--color-ink);
+  box-shadow:
+    4px 4px 0 0 #050805;
 }
+
 .shadow-chalk-lime {
-  box-shadow: 6px 6px 0 0 var(--color-lime);
+  box-shadow:
+    6px 6px 0 0 var(--color-lime);
 }
+
+/* =========================================================
+   SPECIAL FITNESS PANELS
+========================================================= */
+
+.fitness-hero {
+  background:
+    radial-gradient(
+      circle at 80% 20%,
+      rgba(184, 255, 53, 0.14),
+      transparent 30%
+    ),
+    linear-gradient(
+      135deg,
+      #0b2117,
+      #07100b 70%
+    );
+
+  border: 2px solid rgba(184, 255, 53, 0.25);
+
+  box-shadow:
+    7px 7px 0 #030503,
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.fitness-section {
+  position: relative;
+}
+
+.fitness-section::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  top: 0;
+
+  width: 45px;
+  height: 5px;
+
+  background: var(--color-lime);
+
+  box-shadow:
+    0 0 12px rgba(184, 255, 53, 0.35);
+}
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
   .animate-marquee,
   .animate-spin-slower,
   .animate-float {
     animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
