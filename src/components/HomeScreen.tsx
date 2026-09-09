@@ -84,19 +84,19 @@ export function HomeScreen({ progress, onStart }: HomeScreenProps) {
 
               <div className="relative">
 
-                <div className="flex items-center justify-between gap-3">
-                  <span className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.18em] text-lime">
-                    <IconBolt className="w-4 h-4" />
-                    TU PROGRESO
-                  </span>
+                <div className="flex items-center justify-between gap-2 min-w-0">
+  <span className="inline-flex items-center gap-2 min-w-0 text-xs font-bold tracking-[0.18em] text-lime">
+    <IconBolt className="w-4 h-4 shrink-0" />
+    <span className="truncate">TU PROGRESO</span>
+  </span>
 
-                  <span className="font-display text-3xl text-white">
-                    {progressCount}
-                    <span className="text-lime text-xl">
-                      /{totalSessions}
-                    </span>
-                  </span>
-                </div>
+  <span className="shrink-0 font-display text-3xl text-white">
+    {progressCount}
+    <span className="text-lime text-xl">
+      /{totalSessions}
+    </span>
+  </span>
+</div>
 
                 <div className="h-4 bg-black border-2 border-white/20 rounded-full mt-5 overflow-hidden">
                   <div
