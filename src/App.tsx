@@ -140,7 +140,7 @@ export default function App() {
 
       {/* Cabecera */}
       <header className="sticky top-0 z-40 bg-chalk/90 backdrop-blur border-b-2 border-ink">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 min-h-16 py-2 flex flex-wrap items-center justify-between gap-2 sm:gap-4">
           <button
             type="button"
             onClick={goHome}
@@ -156,7 +156,7 @@ export default function App() {
             </span>
           </button>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-end min-w-0">
             <button
               type="button"
               onClick={handleLogout}
