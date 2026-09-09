@@ -1,5 +1,6 @@
 import { FormEvent, useState } from "react";
 import { resetPassword, signIn, signUp } from "../auth";
+import { IconDumbbell } from "../components/Icons";
 
 type AuthMode = "login" | "register";
 
@@ -66,7 +67,7 @@ export function AuthScreen() {
         <div className="bg-chalk border-2 border-ink rounded-2xl shadow-chalk p-6 sm:p-8">
           <div className="text-center mb-8">
             <div className="mx-auto mb-4 w-14 h-14 bg-pine border-2 border-ink rounded-xl grid place-items-center text-lime">
-              <span className="font-display text-2xl">EC</span>
+              <IconDumbbell className="w-7 h-7" />
             </div>
 
             <h1 className="font-display text-3xl tracking-[0.05em] text-ink">
