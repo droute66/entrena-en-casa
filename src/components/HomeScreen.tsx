@@ -80,7 +80,7 @@ export function HomeScreen({ progress, onStart }: HomeScreenProps) {
           <div className="lg:col-span-2">
             <div className="relative w-full max-w-full min-w-0 overflow-hidden bg-pine-deep border-2 border-lime/30 rounded-xl shadow-chalk p-4 sm:p-7 h-full">
 
-              <div className="absolute inset-0 bg-diag-dark" aria-hidden />
+              {/* <div className="absolute inset-0 bg-diag-dark" aria-hidden /> */}
 
               <div className="relative">
 
